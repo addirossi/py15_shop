@@ -1,3 +1,38 @@
-from django.shortcuts import render
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-# Create your views here.
+from .serializers import (RegisterSerializer, ActivationSerializer,
+                          LoginSerializer, ChangePasswordSerializer,
+                          ForgotPasswordSerializer)
+
+
+class RegistrationView(APIView):
+    def post(self, request):
+        data = request.data
+        serializer = RegisterSerializer(data=data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.create()
+            message = f'Вы успешно зарегистрированы. ' \
+                      f'Вам отправлено письмо с активацией'
+            return Response(message, status=201)
+
+
+class ActivationView(APIView):
+    pass
+
+
+class LoginView:
+    pass
+
+
+class LogoutView(APIView):
+    pass
+
+
+class ChangePasswordView(APIView):
+    pass
+
+
+class ForgotPasswordView(APIView):
+    pass
+

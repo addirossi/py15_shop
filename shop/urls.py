@@ -26,12 +26,6 @@ router.register('categories', CategoryViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/v1/', include(router.urls))
-    # path('api/v1/products/', ProductViewSet.as_view(
-    #     {'get': 'list', 'post': 'create'}
-    # )),
-    # path('api/v1/products/<int:pk>/', ProductViewSet.as_view(
-    #     {'get': 'retrieve', 'put': 'update',
-    #      'patch': 'partial_update', 'delete': 'destroy'}
-    # ))
+    path('api/v1/', include(router.urls)),
+    path('api/v1/', include('account.urls'))
 ]

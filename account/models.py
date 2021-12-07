@@ -1,4 +1,5 @@
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
+from django.core.mail import send_mail
 from django.db import models
 
 
@@ -43,3 +44,19 @@ class User(AbstractBaseUser):
 
     def has_perm(self, obj=None):
         return self.is_staff
+
+    def generate_activation_code(self):
+        from django.utils.crypto import get_random_string
+
+        code = get_random_string(8)
+        self.activation_code = code
+        self.save()
+        return code
+
+    @staticmethod
+    def send_activation_mail(email, code):
+        message = f'Ваш код активации: {code}'
+        send_mail('Активация аккаунта',
+                  message,
+                  'test@gmail.com',
+                  [email])
