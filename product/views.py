@@ -1,4 +1,6 @@
+import rest_framework.pagination
 from rest_framework.decorators import api_view
+from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView, UpdateAPIView, DestroyAPIView, \
     ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.response import Response
@@ -6,6 +8,7 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
 from product.models import Product, Category
+from product.permissions import IsAdmin
 from product.serializers import ProductSerializer, ProductsListSerializer, CategorySerializer
 
 
@@ -62,17 +65,23 @@ from product.serializers import ProductSerializer, ProductsListSerializer, Categ
 class ProductViewSet(ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    permission_classes = [IsAdmin]
+    # pagination_class = rest_framework.pagination.PageNumberPagination
+    filter_backends = [SearchFilter, OrderingFilter, DjangoFilterBackend]
+    search_fields = ['name']
+    ordering_fields = ['name', 'price']
+    filterset_fields = ['name', 'category']
 
 
 class CategoryViewSet(ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    permission_classes = [IsAdmin]
 
 
-# TODO: Авторизация
+# TODO: Комментарии к продуктам
 # TODO: Фильтрация продуктов
 # TODO: Поиск по продуктам
-# TODO: Пагинация
 # TODO: Заказы
 # TODO: Тесты
 # TODO: git
