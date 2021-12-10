@@ -1,4 +1,9 @@
+from django.contrib.auth import get_user_model
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
+
+
+User = get_user_model()
 
 
 class Category(models.Model):
@@ -20,3 +25,24 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Comment(models.Model):
+    product = models.ForeignKey(Product,
+                                on_delete=models.CASCADE,
+                                related_name='comments')
+    author = models.ForeignKey(User,
+                               on_delete=models.CASCADE,
+                               related_name='comments')
+    text = models.TextField()
+    rating = models.SmallIntegerField(
+        validators=[
+            MinValueValidator(1),
+            MaxValueValidator(5)
+        ]
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+# product = Product.objects.get(id=10)
+# Comment.objects.filter(product=product)
+# product.comments.all()

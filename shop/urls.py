@@ -17,7 +17,8 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import SimpleRouter
 
-from product.views import ProductViewSet, CategoryViewSet
+from product.views import (ProductViewSet, CategoryViewSet,
+                           CreateCommentView, UpdateCommentView)
 
 router = SimpleRouter()
 router.register('products', ProductViewSet)
@@ -27,5 +28,7 @@ router.register('categories', CategoryViewSet)
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/', include(router.urls)),
-    path('api/v1/', include('account.urls'))
+    path('api/v1/', include('account.urls')),
+    path('api/v1/comments/', CreateCommentView.as_view()),
+    path('api/v1/comments/<int:pk>/', UpdateCommentView.as_view())
 ]
