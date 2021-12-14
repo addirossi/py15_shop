@@ -23,6 +23,9 @@ class Product(models.Model):
                                  on_delete=models.RESTRICT,
                                  related_name='products')
 
+    class Meta:
+        ordering = ['name']
+
     def __str__(self):
         return self.name
 
