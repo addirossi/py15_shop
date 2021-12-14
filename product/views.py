@@ -1,10 +1,11 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter, OrderingFilter
-from rest_framework.generics import CreateAPIView, UpdateAPIView
+from rest_framework.generics import CreateAPIView, UpdateAPIView, DestroyAPIView
+from rest_framework.mixins import CreateModelMixin, UpdateModelMixin, DestroyModelMixin
 from rest_framework.permissions import IsAuthenticated, BasePermission
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet, GenericViewSet
 
 from product.filters import ProductFilter
 from product.models import Product, Category, Comment
@@ -47,9 +48,9 @@ from product.serializers import ProductSerializer, ProductsListSerializer, Categ
 #     serializer_class = ProductSerializer
 #
 #
-# class DeleteAPIView(DestroyAPIView):
-#     queryset = Product.objects.all()
-#     serializer_class = ProductSerializer
+class DeleteAPIView(DestroyAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
 #
 #
 # class ProductListCreateView(ListCreateAPIView):
@@ -65,12 +66,29 @@ from product.serializers import ProductSerializer, ProductsListSerializer, Categ
 class ProductViewSet(ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    # permission_classes = [IsAdmin]
+    permission_classes = [IsAdmin]
     # pagination_class = rest_framework.pagination.PageNumberPagination
     filter_backends = [SearchFilter, OrderingFilter, DjangoFilterBackend]
     filterset_class = ProductFilter
     search_fields = ['name']
     ordering_fields = ['name', 'price']
+
+    # api/v1/products/id/comments/
+    @action(['GET'], detail=True)
+    def comments(self, request, pk):
+        product = self.get_object()
+        comments = product.comments.all()
+        serializer = CommentSerializer(comments, many=True)
+        return Response(serializer.data)
+
+
+    # def get_queryset(self):
+    #     queryset = super().get_queryset()
+    #     # ?search = apple
+    #     search_param = self.request.query_params.get('search')
+    #     queryset = queryset.filter(name__icontains=search_param)
+    #     return queryset
+
 
     # def get_permissions(self):
     #     if self.action == 'comment':
@@ -96,16 +114,36 @@ class CategoryViewSet(ModelViewSet):
     permission_classes = [IsAdmin]
 
 
-class CreateCommentView(CreateAPIView):
-    queryset = Comment.objects.all()
-    serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticated]
+# class CreateCommentView(CreateAPIView):
+#     queryset = Comment.objects.all()
+#     serializer_class = CommentSerializer
+#     permission_classes = [IsAuthenticated]
+#
+#
+# class UpdateCommentView(UpdateAPIView):
+#     queryset = Comment.objects.all()
+#     serializer_class = CommentSerializer
+#     permission_classes = [IsAuthor]
+#
+#
+# class DeleteCommentView(DestroyAPIView):
+#     queryset = Comment.objects.all()
+#     serializer_class = CommentSerializer
+#     permission_classes = [IsAuthor | IsAdmin]
 
 
-class UpdateCommentView(UpdateAPIView):
+class CommentViewSet(CreateModelMixin,
+                     UpdateModelMixin,
+                     DestroyModelMixin,
+                     GenericViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthor]
+
+    def get_permissions(self):
+        if self.action == 'create':
+            return [IsAuthenticated()]
+        return [IsAuthor()]
+
 
 # TODO: пройтись по всем запросам
 # TODO: Комментарии к продуктам
