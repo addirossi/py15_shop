@@ -22,6 +22,9 @@ class Product(models.Model):
     category = models.ForeignKey(Category,
                                  on_delete=models.RESTRICT,
                                  related_name='products')
+    image = models.ImageField(upload_to='products',
+                              null=True,
+                              blank=True)
 
     class Meta:
         ordering = ['name']
